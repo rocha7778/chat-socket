@@ -24,16 +24,7 @@ io.on('connection', (client) => {
         client.broadcast.emit('enviarMensaje', data);
 
 
-        // if (mensaje.usuario) {
-        //     callback({
-        //         resp: 'TODO SALIO BIEN!'
-        //     });
 
-        // } else {
-        //     callback({
-        //         resp: 'TODO SALIO MAL!!!!!!!!'
-        //     });
-        // }
 
 
 
