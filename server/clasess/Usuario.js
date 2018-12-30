@@ -15,7 +15,7 @@ class Usuario {
     }
 
     getPersonaById(id) {
-        return this.personasConectadasAlchat.filter(persoan => persona.id === id)[0]
+        return this.personasConectadasAlchat.filter(persona => persona.id === id)[0]
     }
 
     getPersonasConectadasAlChat() {
