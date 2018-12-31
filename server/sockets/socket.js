@@ -16,27 +16,32 @@ io.on('connection', (client) => {
 
     client.on('entrarChat', (data, callback) => {
 
+        let sala = data.sala;
 
 
-        if (!data.nombre) {
+        if (!data.nombre || !sala) {
 
             return callback({
                 ok: false,
-                message: 'El nombre es necesario'
+                message: 'El nombre/sala es necesario'
             })
 
         }
 
 
+        client.join(sala)
 
-        let usuarios = usuario.agregarPersona(client.id, data.nombre);
 
 
-        client.broadcast.emit('listadoDePersonas', { usuarios: usuario.getPersonasConectadasAlChat() })
+        usuario.agregarPersona(client.id, data.nombre, data.sala);
+        let usuariosPorSala = usuario.getPersonasConectadasAlChatPorSala(sala)
+
+
+        client.broadcast.to(sala).emit('listadoDePersonas', { usuarios: usuariosPorSala })
 
         callback({
             ok: true,
-            usuarios: usuarios
+            usuarios: usuariosPorSala
         })
 
 
@@ -50,9 +55,11 @@ io.on('connection', (client) => {
     client.on('disconnect', () => {
 
         let personaBorrada = usuario.deletePersonFromChatById(client.id);
+        let sala = personaBorrada.sala;
 
-        client.broadcast.emit('notificarUsuarioAbandonoSalaDeChat', enviarMensaje('Administrador', `El usuario ${personaBorrada.nombre} ha abandonado la sala`))
-        client.broadcast.emit('listadoDePersonas', { usuarios: usuario.getPersonasConectadasAlChat() })
+        client.broadcast.to(sala).emit('notificarUsuarioAbandonoSalaDeChat', enviarMensaje('Administrador', `El usuario ${personaBorrada.nombre} ha abandonado la sala`))
+        usuario.deletePersonFromChatById(client.id);
+        client.broadcast.to(sala).emit('listadoDePersonas', { usuarios: usuario.getPersonasConectadasAlChatPorSala(sala) })
 
         console.log(`El usuario ${personaBorrada.nombre} ha abandonado la sala`);
 
@@ -61,13 +68,15 @@ io.on('connection', (client) => {
     })
 
 
-    client.on('crearMensaje', (data) => {
+    client.on('crearMensaje', (data, callback) => {
 
         let persona = usuario.getPersonaById(client.id)
 
         let mensaje = enviarMensaje(persona.nombre, data.mensaje)
 
-        client.broadcast.emit('crearMensaje', mensaje)
+        client.broadcast.to(persona.sala).emit('crearMensaje', mensaje)
+
+        callback(mensaje)
     })
 
 

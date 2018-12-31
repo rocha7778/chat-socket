@@ -7,8 +7,8 @@ class Usuario {
     }
 
 
-    agregarPersona(id, nombre) {
-        let persona = { id, nombre };
+    agregarPersona(id, nombre, sala) {
+        let persona = { id, nombre, sala };
         this.personasConectadasAlchat.push(persona);
 
         return this.personasConectadasAlchat;
@@ -22,9 +22,16 @@ class Usuario {
         return this.personasConectadasAlchat;
     }
 
+    getPersonasConectadasAlChatPorSala(sala) {
+        return this.personasConectadasAlchat.filter(persona => persona.sala === sala)
+
+    }
+
     deletePersonFromChatById(id) {
+
+
         let personaRetirada = this.getPersonaById(id);
-        this.personasConectadasAlchat.filter(persona => persona.id !== id);
+        this.personasConectadasAlchat = this.personasConectadasAlchat.filter(persona => persona.id !== id);
         return personaRetirada;
     }
 }
